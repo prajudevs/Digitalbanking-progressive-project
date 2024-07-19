@@ -1,164 +1,87 @@
-    // // package com.wecp.progressive.service;
-
-    // // import java.sql.SQLException;
-    // // import java.util.List;
-
-    // // import org.springframework.beans.factory.annotation.Autowired;
-
-    // // import com.wecp.progressive.entity.Accounts;
-    // // import com.wecp.progressive.repository.AccountRepository;
-
-    // // public class AccountServiceImplJpa implements AccountService{
-    // //     @Autowired
-    // //     private AccountRepository accountRepository;
-
-    // //     @Override
-    // //     public List<Accounts> getAllAccounts() throws SQLException {
-    // //         return accountRepository.findAll();
-    // //         // TODO Auto-generated method stub
-    // //         //throw new UnsupportedOperationException("Unimplemented method 'getAllAccounts'");
-    // //     }
-
-    // //     @Override
-    // //     public List<Accounts> getAccountsByUser(int userId) throws SQLException {
-    // //         return List<Accounts>(accountRepository.findById(userId)).getAccountById(userId);
-    // //         // TODO Auto-generated method stub
-    // //         //throw new UnsupportedOperationException("Unimplemented method 'getAccountsByUser'");
-    // //     }
-
-    // //     @Override
-    // //     public Accounts getAccountById(int accountId) throws SQLException {
-    // //         // TODO Auto-generated method stub
-    // //         throw new UnsupportedOperationException("Unimplemented method 'getAccountById'");
-    // //     }
-
-    // //     @Override
-    // //     public int addAccount(Accounts accounts) throws SQLException {
-    // //         // TODO Auto-generated method stub
-    // //         throw new UnsupportedOperationException("Unimplemented method 'addAccount'");
-    // //     }
-
-    // //     @Override
-    // //     public void updateAccount(Accounts accounts) throws SQLException {
-    // //         // TODO Auto-generated method stub
-    // //         throw new UnsupportedOperationException("Unimplemented method 'updateAccount'");
-    // //     }
-
-    // //     @Override
-    // //     public void deleteAccount(int accountId) throws SQLException {
-    // //         // TODO Auto-generated method stub
-    // //         throw new UnsupportedOperationException("Unimplemented method 'deleteAccount'");
-    // //     }
-
-    // //     @Override
-    // //     public List<Accounts> getAllAccountsSortedByBalance() throws SQLException {
-    // //         // TODO Auto-generated method stub
-    // //         throw new UnsupportedOperationException("Unimplemented method 'getAllAccountsSortedByBalance'");
-    // //     }
-
-    // //     @Override
-    // //     public List<Accounts> getAllAccountsFromArrayList() {
-    // //         // TODO Auto-generated method stub
-    // //         throw new UnsupportedOperationException("Unimplemented method 'getAllAccountsFromArrayList'");
-    // //     }
-
-    // //     @Override
-    // //     public List<Accounts> addAccountToArrayList(Accounts accounts) {
-    // //         // TODO Auto-generated method stub
-    // //         throw new UnsupportedOperationException("Unimplemented method 'addAccountToArrayList'");
-    // //     }
-
-    // //     @Override
-    // //     public List<Accounts> getAllAccountsSortedByBalanceFromArrayList() {
-    // //         // TODO Auto-generated method stub
-    // //         throw new UnsupportedOperationException("Unimplemented method 'getAllAccountsSortedByBalanceFromArrayList'");
-    // //     }
-
-    // //     @Override
-    // //     public void emptyArrayList() {
-    // //         // TODO Auto-generated method stub
-    // //         throw new UnsupportedOperationException("Unimplemented method 'emptyArrayList'");
-    // //     }
-        
-    // // }
-    // package com.wecp.progressive.service;
+package com.wecp.progressive.service;
 
 
-    // import com.wecp.progressive.dao.AccountDAO;
-    // import com.wecp.progressive.entity.Accounts;
+import com.wecp.progressive.entity.Accounts;
+import com.wecp.progressive.exception.AccountNotFoundException;
+import com.wecp.progressive.repository.AccountRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-    // import java.sql.SQLException;
-    // import java.util.ArrayList;
-    // import java.util.Comparator;
-    // import java.util.List;
+import java.sql.SQLException;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
-    // public class AccountServiceImpl implements AccountService {
-    //     private AccountDAO accountDAO;
+@Service
+public class AccountServiceImplJpa implements AccountService{
 
-    //     private static List<Accounts> accountsList = new ArrayList<>();
-    //     public AccountServiceImpl(AccountDAO accountDAO) {
-    //         this.accountDAO = accountDAO;
-    //     }
+    private AccountRepository accountRepository;
+    @Autowired
+    public AccountServiceImplJpa(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
+    }
 
-    //     @Override
-    //     public List<Accounts> getAllAccounts() throws SQLException {
-    //         return accountDAO.getAllAccounts();
-    //     }
+    @Override
+    public List<Accounts> getAllAccounts() throws SQLException {
+        return accountRepository.findAll();
+    }
 
-    //     @Override
-    //     public Accounts getAccountById(int accountId) throws SQLException {
-    //         return accountDAO.getAccountById(accountId);
-    //     }
+    @Override
+    public List<Accounts> getAccountsByUser(int customerId) throws SQLException {
+        return accountRepository.getAccountsByCustomerCustomerId(customerId);
+    }
 
-    //     @Override
-    //     public int addAccount(Accounts accounts) throws SQLException {
-    //         return accountDAO.addAccount(accounts);
-    //     }
+    @Override
+    public Accounts getAccountById(int accountId) {
+        Optional<Accounts> accounts = accountRepository.findById(accountId);
+        if (accounts.isPresent()) {
+            return accounts.get();
+        }
+        else {
+            throw new AccountNotFoundException("No accounts found linked with this accountId");
+        }
+    }
 
-    //     @Override
-    //     public void updateAccount(Accounts accounts) throws SQLException {
-    //         accountDAO.updateAccount(accounts);
-    //     }
+    @Override
+    public int addAccount(Accounts accounts) {
+        return accountRepository.save(accounts).getAccountId();
+    }
 
-    //     @Override
-    //     public void deleteAccount(int accountId) throws SQLException {
-    //         accountDAO.deleteAccount(accountId);
-    //     }
+    @Override
+    public void updateAccount(Accounts accounts) {
+        accountRepository.save(accounts);
+    }
 
-    //     @Override
-    //     public List<Accounts> getAllAccountsSortedByBalance() throws SQLException {
-    //         List<Accounts> sortedAccounts = accountDAO.getAllAccounts();
-    //         if (sortedAccounts != null) {
-    //             sortedAccounts.sort(Comparator.comparingDouble(Accounts::getBalance)); // Sort by account balance
-    //         }
-    //         return sortedAccounts;
-    //     }
+    @Override
+    public void deleteAccount(int accountId) {
+        accountRepository.deleteById(accountId);
+    }
 
+    @Override
+    public List<Accounts> getAllAccountsSortedByBalance() throws SQLException {
+        List<Accounts> sortedAccounts = getAllAccounts();
+        sortedAccounts.sort(Comparator.comparingDouble(Accounts::getBalance)); // Sort by account balance
+        return sortedAccounts;
+    }
 
-    //     @Override
-    //     public List<Accounts> getAccountsByUser(int userId) throws SQLException{
-    //         return accountDAO.getAllAccounts();
-    //     }
+    // Do not implement these methods
+    @Override
+    public List<Accounts> getAllAccountsFromArrayList() {
+        return null;
+    }
 
-    //     @Override
-    //     public List<Accounts> getAllAccountsSortedByBalanceFromArrayList() {
-    //         List<Accounts> sortedAccounts = accountsList;
-    //         sortedAccounts.sort(Comparator.comparingDouble(Accounts::getBalance)); // Sort by account balance
-    //         return sortedAccounts;
-    //     }
+    @Override
+    public List<Accounts> addAccountToArrayList(Accounts accounts) {
+        return null;
+    }
 
-    //     @Override
-    //     public void emptyArrayList() {
-    //         accountsList = new ArrayList<>();
-    //     }
+    @Override
+    public List<Accounts> getAllAccountsSortedByBalanceFromArrayList() {
+        return null;
+    }
 
-    //     @Override
-    //     public List<Accounts> getAllAccountsFromArrayList() {
-    //         return accountsList;
-    //     }
-    //     @Override
-    //     public List<Accounts> addAccountToArrayList(Accounts accounts) {
-    //         accountsList.add(accounts);
-    //         return accountsList;
-    //     }
-    // }
+    @Override
+    public void emptyArrayList() {
+
+    }
+}
