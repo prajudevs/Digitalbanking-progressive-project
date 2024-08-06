@@ -10,9 +10,10 @@ import java.util.List;
 
 @Service
 public class LoanService {
+    @Autowired
     private final LoanRepository loanRepository;
 
-    @Autowired
+ 
     public LoanService(LoanRepository loanRepository) {
         this.loanRepository = loanRepository;
     }

@@ -17,10 +17,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/accounts")
 public class AccountController {
-
+    @Autowired
     private final AccountService accountService;
 
-    @Autowired
+   
     public AccountController(@Qualifier("accountServiceImplJpa") AccountService accountService) {
         this.accountService = accountService;
     }
